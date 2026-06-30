@@ -20,3 +20,7 @@ treat `app/`, `db/`, etc. as an untouched generator skeleton until code shows up
 ## Conventions
 
 - Markdown: blank lines before and after every header.
+
+## References
+
+https://whiterabbitashland.com/rogue-raise

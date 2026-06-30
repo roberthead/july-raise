@@ -20,9 +20,9 @@
         }
       }
     ],
-    "activeItemId": "holographic-cactus",
+    "activeItemId": "psychedelic-wizard",
     "scroll": {
-      "x": -114.25
+      "x": -333.5
     }
   },
   "editor": {
@@ -37,7 +37,10 @@
     },
     "viewMode": "files",
     "showIgnored": true,
-    "expandedDirs": []
+    "expandedDirs": [
+      "/docs",
+      "/docs/agentic-engineering-lab"
+    ]
   },
   "gitTree": {
     "visible": true,
