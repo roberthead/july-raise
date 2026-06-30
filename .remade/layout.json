@@ -1,0 +1,55 @@
+{
+  "dock": {
+    "items": [
+      {
+        "id": "holographic-cactus",
+        "type": "terminal",
+        "title": "holographic-cactus",
+        "placement": {
+          "width": 691,
+          "height": 567
+        }
+      },
+      {
+        "id": "psychedelic-wizard",
+        "type": "terminal",
+        "title": "psychedelic-wizard",
+        "placement": {
+          "width": 691,
+          "height": 567
+        }
+      }
+    ],
+    "activeItemId": "holographic-cactus",
+    "scroll": {
+      "x": -114.25
+    }
+  },
+  "editor": {
+    "openFiles": []
+  },
+  "projectExplorer": {
+    "placement": {
+      "width": 220
+    },
+    "scroll": {
+      "y": 0
+    },
+    "viewMode": "files",
+    "showIgnored": true,
+    "expandedDirs": []
+  },
+  "gitTree": {
+    "visible": false,
+    "placement": {
+      "width": 300
+    }
+  },
+  "runBar": {
+    "popoverPlacement": {
+      "width": 420,
+      "height": 360
+    }
+  },
+  "focusedPanel": "terminal"
+}

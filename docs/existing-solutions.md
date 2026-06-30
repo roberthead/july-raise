@@ -84,12 +84,40 @@ and free — build on these rather than rolling our own analytics.
 |---|---|---|
 | **Rnssp** (CDC, R) | Official NSSP analytics toolkit; standardized data pulls, templates, `get_essence_data()` to hit the NSSP-ESSENCE API | Build-on |
 | **pynssp** (CDC, Python) | Python equivalent of Rnssp | Build-on |
-| **NSSP-ESSENCE** | CDC's secure web tool/API for the surveillance workflow | Interoperate-with |
+| **Rnssp RMD templates** | Pre-built R Markdown reports: State ED report, Text Analysis Dashboard, ESSENCE CCDD Categories, Syndrome Definition Evaluation, Data Quality Filter Matrix, ICD-10 code usage | Build-on (shortcut the dashboard) |
+| **NSSP-ESSENCE** | CDC's secure web tool/API for the surveillance workflow; API returns aggregated tables (CSV/JSON) or time-series images, built for recurring reports | Interoperate-with |
+| **Oregon OHA ESSENCE** | Oregon's own ESSENCE instance with user guide + weather/environmental and mass-gathering modules | Interoperate-with (the local data source) |
 | **ICD-10 Z-codes** | Housing status inside clinical data: `Z59.0` homelessness (+ `Z59.00/.01 sheltered/.02`), `Z59.811` at-risk | Reference / standard |
 
 > Today's workflow is a manual API → terminal → Excel pull. The obvious upgrade is
 > a **live ESSENCE/API integration** using Rnssp/pynssp, with date-range params
 > driven by the tool instead of by hand.
+
+### Pre-built homelessness syndrome definitions (don't invent your own)
+
+The NSSP Knowledge Repository hosts **validated ESSENCE homelessness syndrome
+definitions** ready to fork — from **Washington State DoH, Idaho, and Maricopa
+County**. WA's is copy-pasteable today:
+
+```
+(Z590 OR Z59.0 OR HOMELESS OR NO HOUSING OR LACK OF HOUSING OR WITHOUT HOUSING OR SHELTER)
+ANDNOT (ANIMAL SHELTER OR DOMESTIC VIOLENCE SHELTER OR DV SHELTER OR DOG OR CAT)
+```
+
+It queries Chief Complaint, Discharge Diagnosis, and Triage Note. The writeup
+also catalogs the **seven+ ways homelessness gets recorded** in charts (e.g.
+`HOMELESS` in the address field, "General Delivery," `NHA`, junk ZIP `ZZZZZ`,
+shelter address, a checkbox, hospital city/ZIP) — essential context for the
+de-duplication work. Plan: **fork and tune for Jackson / Josephine / Klamath**,
+validating with the CSTE Syndrome Definition Development toolkit.
+
+### Precedents — ESSENCE used on homeless populations
+
+Documented, citable proof the method works (stronger than New Mexico alone):
+Miami-Dade (GI outbreak in a shelter), San Francisco (TB detection), Maricopa &
+LA County (Hepatitis A outbreaks), Atlanta (*Streptococcus pneumoniae* cluster).
+These map to Steven's interest in outbreak/batch detection (fentanyl, heat) and
+the Hep C / HIV rates raised June 22.
 
 ---
 
@@ -117,7 +145,13 @@ own terms, anonymously, without going through an authority figure.
 - dedupe / Zingg / data-matching software list — https://github.com/J535D165/data-matching-software
 - CDC Rnssp — https://github.com/CDCgov/Rnssp
 - CDC pynssp — https://github.com/CDCgov/pynssp
+- Rnssp RMD report templates — https://cdcgov.github.io/Rnssp-rmd-templates/usage/
 - CDC NSSP / ESSENCE — https://www.cdc.gov/nssp/index.html
+- CDC ESSENCE onboarding toolkit — https://www.cdc.gov/nssp/php/onboarding-toolkits/essence.html
+- NSSP Knowledge Repository — "homeless" tag — https://knowledgerepository.syndromicsurveillance.org/tags/homeless
+- WA DoH ESSENCE homelessness syndrome definition — https://knowledgerepository.syndromicsurveillance.org/homelessness-washington-state-department-health
+- Oregon OHA ESSENCE user guide (PDF) — https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/COMMUNICABLEDISEASE/PREPAREDNESSSURVEILLANCEEPIDEMIOLOGY/ESSENCE/Documents/userguide.pdf
+- Syndrome Definition Development toolkit (CSTE/NSSP) — https://knowledgerepository.syndromicsurveillance.org/syndrome-definition-development-toolkit
 - ICD-10-CM Z59.0 — https://www.icd10data.com/ICD10CM/Codes/Z00-Z99/Z55-Z65/Z59-/Z59.0
 - PPRL for health + homeless data — https://pmc.ncbi.nlm.nih.gov/articles/PMC8489603/
 - De-identified Bayesian matching — https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10163749/

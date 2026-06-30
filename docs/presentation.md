@@ -48,7 +48,29 @@ The work sorts cleanly into three tracks. A blue-sky "PIT Cover Tool" sits on to
 
 ---
 
-## Slide 4 — Best practice #1: De-duplication is a record-linkage problem
+## Slide 4 — What already exists vs. what we build
+
+The most useful reframe for a 48-hour Raise: **much of the surveillance scaffolding is already done and free.** Don't burn the weekend rebuilding it.
+
+**Already exists (adopt / configure):**
+
+- Oregon OHA's **ESSENCE** instance and the **ESSENCE API** for automated pulls
+- CDC **Rnssp / pynssp** libraries + ready-made **RMD report templates**
+- Validated **homelessness syndrome definitions** (WA / Idaho / Maricopa)
+- Upstream **visit-level de-duplication** in the BioSense Platform
+- Mature **record-linkage** and **privacy-preserving linkage** libraries (Splink, dedupe, PPRL methods)
+
+**Genuinely green-field (where the Raise should spend its energy):**
+
+- **Person-level, cross-source de-duplication** — linking the same human across health, services, and self-report
+- **Anonymous self-report** — opt-in, no-name, phone-based
+- **The storytelling / counter-narrative layer** — making the data land with both audiences
+
+> If a team is rebuilding something in the left column, redirect them. The win is in the right column.
+
+---
+
+## Slide 5 — Best practice #1: De-duplication is a record-linkage problem
 
 This is a solved-ish science — we don't have to invent it.
 
@@ -56,25 +78,52 @@ This is a solved-ish science — we don't have to invent it.
 - **Privacy-preserving record linkage (PPRL)** lets you match people *without* exposing identities — using techniques like Bloom-filter encodings and Bayesian fuzzy matching that tolerate typos and partial data.
 - This has been done specifically to **join health-care and homeless-services data** while preserving confidentiality — directly relevant to linking OHA/county health data with service-provider data.
 
+**Where the real work is — be precise.** Visit-level de-duplication already happens *upstream*: the CDC BioSense Platform (behind ESSENCE) assigns a unique identifier per visit and collapses a patient's visit data into a single record. Our green-field job is the harder **person-level, cross-source** layer — matching the same human across health data, syringe exchange, meals, and self-report when there's no shared key.
+
+**The messiness it must handle.** In real records, homelessness alone is documented at least seven different ways: `HOMELESS` typed in the address field, "General Delivery" + a post office, `NHA` + hospital ZIP, a pre-designated junk ZIP (e.g. `ZZZZZ`), a shelter address, a homeless checkbox, or just the hospital's own city/ZIP. The de-duper has to be robust to exactly this kind of inconsistency.
+
 **What to build:** a de-duper that assigns a persistent (de-identified) match ID, surfaces a **confidence score** for fuzzy matches ("possible same person — 0.82"), and gracefully handles orphans and zero-data cases. Think CRM-style client record + a normalization/matching layer on top.
 
 *Sources: PPRL for health + homeless data (PMC8489603); de-identified Bayesian matching (PMC10163749); probabilistic linkage overview (PMC4460842).*
 
 ---
 
-## Slide 5 — Best practice #2: Use the national standards & libraries
+## Slide 6 — Best practice #2: Use the national standards & libraries
 
 Don't start from a blank file. There are standardized, national methods we can build on.
 
 - **CDC NSSP libraries** — `Rnssp` (R) and `pynssp` (Python) are the CDC's official syndromic-surveillance toolkits. They standardize data pulls and analytics and include `get_essence_data()` to pull from the **NSSP-ESSENCE API**. (Note: today's pull is API → terminal → Excel by hand; a live ESSENCE/API integration is the obvious upgrade.)
+- **Ready-made report templates** — the `Rnssp` R Markdown templates are pre-built reports (State Emergency Department, Text Analysis Dashboard, ESSENCE CCDD Categories, Syndrome Definition Evaluation, Data Quality Filter Matrix). A lot of "the dashboard" is template configuration, not from-scratch code.
 - **ICD-10 Z-codes for housing status** — `Z59.0` (homelessness) and its more specific children `Z59.00`, `Z59.01` (sheltered), `Z59.02`, plus `Z59.811` (housing instability, at risk). These are how housing status rides along inside clinical data from clinics, hospitals, and urgent cares.
-- **Precedent:** New Mexico has run an augmented, surveillance-style count whose numbers come in far higher than one-time PIT counts. We can request their reports and potentially start from their code rather than from scratch.
+- **Local reality:** Oregon OHA runs its own **ESSENCE** instance (with user guides plus weather/environmental and mass-gathering modules). That's the system Steven already pulls from — the weather data supports heat-illness surveillance, and the mass-gathering module fits event-driven counts at meals/exchanges.
 
-*Sources: CDCgov/Rnssp & CDCgov/pynssp (GitHub); CDC NSSP/ESSENCE; ICD-10-CM Z59.0 (icd10data.com).*
+### The big one: we don't have to invent a homelessness definition
+
+The NSSP Knowledge Repository already hosts validated ESSENCE **homelessness syndrome definitions** from Washington State, Idaho, and Maricopa County. WA's is copy-pasteable today:
+
+```
+(Z590 OR Z59.0 OR HOMELESS OR NO HOUSING OR LACK OF HOUSING OR WITHOUT HOUSING OR SHELTER)
+ANDNOT (ANIMAL SHELTER OR DOMESTIC VIOLENCE SHELTER OR DV SHELTER OR DOG OR CAT)
+```
+
+It queries Chief Complaint, Discharge Diagnosis, and Triage Note. **Plan: fork an existing definition and tune it for Jackson / Josephine / Klamath**, validating with the CSTE Syndrome Definition Development toolkit — rather than building from zero.
+
+### Precedent: this method already works on homeless populations
+
+Beyond New Mexico's augmented count (numbers far higher than one-time PIT), there's documented use of ESSENCE *on homeless populations*:
+
+- **Miami-Dade** — tracked a GI outbreak in a homeless shelter
+- **San Francisco** — early detection of tuberculosis among the homeless
+- **Maricopa County & LA County** — detected Hepatitis A outbreaks among people experiencing homelessness
+- **Atlanta** — identified a *Streptococcus pneumoniae* cluster
+
+These map directly to Steven's stated interest in outbreak/batch detection (fentanyl, heat) and to the Hep C / HIV rates raised in the June 22 session.
+
+*Sources: CDCgov/Rnssp & pynssp + Rnssp RMD templates (GitHub/cdcgov.github.io); CDC NSSP/ESSENCE; Oregon OHA ESSENCE guides; NSSP Knowledge Repository "homeless" tag + WA DoH syndrome definition; ICD-10-CM Z59.0.*
 
 ---
 
-## Slide 6 — Best practice #3: Meet people where they are
+## Slide 7 — Best practice #3: Meet people where they are
 
 The technology is easy; trust and participation are the real constraints. Lessons from the field and from trauma-informed research converge.
 
@@ -88,7 +137,7 @@ The technology is easy; trust and participation are the real constraints. Lesson
 
 ---
 
-## Slide 7 — Existing apps & tools (don't reinvent these)
+## Slide 8 — Existing apps & tools (don't reinvent these)
 
 | Tool | What it does | Relevance |
 |---|---|---|
@@ -98,6 +147,9 @@ The technology is easy; trust and participation are the real constraints. Lesson
 | **PIT Regional Command Center** | Real-time dashboard of incoming surveys, GPS tallies, summary reports | Model for the live web dashboard |
 | **HMIS platforms** (e.g. WellSky) | The system of record CoCs use for HUD reporting | What any new tool must interoperate with, not fight |
 | **Rnssp / pynssp** | CDC syndromic-surveillance analytics | Backbone for the baseline/trend track |
+| **Rnssp RMD templates** | Pre-built ESSENCE report templates (ED report, text-mining dashboard, syndrome eval) | Shortcut for the reporting/dashboard layer |
+| **Oregon OHA ESSENCE** | Oregon's own ESSENCE instance + Z-code/health data | The actual local data source Steven pulls from |
+| **KR homelessness syndrome defs** | Validated WA / Idaho / Maricopa definitions | Fork-and-tune instead of inventing a definition |
 
 **Takeaway:** the gaps worth building into are (a) **de-duplication / confidence-scored matching**, (b) **anonymous self-report**, and (c) **a unified view** that ties surveillance baseline → PIT → service data together. The survey-collection layer is largely solved.
 
@@ -105,22 +157,25 @@ The technology is easy; trust and participation are the real constraints. Lesson
 
 ---
 
-## Slide 8 — Possible builds (the menu for teams)
+## Slide 9 — Possible builds (the menu for teams)
 
 What a team could realistically own across 48 hours, each with a named owner afterward:
 
 - **The De-Duper / CRM core** — client records + probabilistic/privacy-preserving matching layer, persistent de-identified IDs, confidence reports for fuzzy matches. *(Bucket 1 — highest leverage.)*
 - **Anonymous self-report channel** — a mobile-friendly web app/link people opt into (no name required); design carefully against spam and bad-faith reporting.
 - **Volunteer recruitment + field app** — sign-up + light training/checklist + a mobile survey tool that **works offline** with a small local data bank, syncing to a web dashboard.
-- **Live dashboard** — web-based view of trends and counts for the "bridge" role to take to commissioners.
-- **ESSENCE/API live integration** — replace the manual API→Excel pull with a real pipeline using `Rnssp`/`pynssp`.
+- **Live dashboard** — web-based view of trends and counts for the "bridge" role to take to commissioners. *Start from an `Rnssp` RMD template rather than a blank canvas.*
+- **ESSENCE/API live integration** — replace the manual API→Excel pull with a real pipeline using `Rnssp`/`pynssp`. The ESSENCE API is built for exactly this: it returns aggregated tables (CSV/JSON) or time-series images for recurring situational reports.
+- **Triage-note text mining** — extract housing status and de-dup signals from free-text Chief Complaint / Triage Notes (where the real context lives). CDC's free-text coding series + the `Rnssp` Text Analysis Dashboard template give a head start.
+- **Local syndrome definition** — fork the WA / Idaho / Maricopa homelessness definition, tune for our three counties, and validate with the CSTE Syndrome Definition Development toolkit. Small, high-value, finishable in 48 hours.
 - **Storytelling / counter-narrative layer** — pairing the sanitized quantitative narrative with first-person stories, so we reach both the empathetic *and* the fact-oriented audience.
+- **(Backlog) NSSP knowledge base** — scrape the CDC NSSP Vimeo library + Whisper-transcribe into a searchable reference. A nice agentic side-quest, not core.
 
 **Constraints to honor:** must work offline; built for the actual end-user's existing tools; resource-constrained county agency (no budget for kiosks/devices — kiosks were explicitly ruled out for vandalism/management cost); and every build needs an owner after the weekend.
 
 ---
 
-## Slide 9 — The north star
+## Slide 10 — The north star
 
 Two virtues to build toward:
 
@@ -146,6 +201,11 @@ If we nail the foundation, the payoff is concrete: a credible count → the budg
 - CDC NSSP R package — https://github.com/CDCgov/Rnssp
 - CDC NSSP Python package — https://github.com/CDCgov/pynssp
 - CDC NSSP / ESSENCE overview — https://www.cdc.gov/nssp/index.html
+- CDC ESSENCE onboarding toolkit — https://www.cdc.gov/nssp/php/onboarding-toolkits/essence.html
+- Rnssp R Markdown report templates — https://cdcgov.github.io/Rnssp-rmd-templates/usage/
+- NSSP Knowledge Repository — "homeless" tag — https://knowledgerepository.syndromicsurveillance.org/tags/homeless
+- WA DoH ESSENCE homelessness syndrome definition — https://knowledgerepository.syndromicsurveillance.org/homelessness-washington-state-department-health
+- Oregon OHA ESSENCE user guide — https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/COMMUNICABLEDISEASE/PREPAREDNESSSURVEILLANCEEPIDEMIOLOGY/ESSENCE/Documents/userguide.pdf
 - ICD-10-CM Z59.0 Homelessness — https://www.icd10data.com/ICD10CM/Codes/Z00-Z99/Z55-Z65/Z59-/Z59.0
 - Privacy-preserving record linkage, health + homeless data — https://pmc.ncbi.nlm.nih.gov/articles/PMC8489603/
 - De-identified Bayesian matching — https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10163749/
