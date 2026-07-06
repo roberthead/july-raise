@@ -6,8 +6,8 @@
         "type": "terminal",
         "title": "holographic-cactus",
         "placement": {
-          "width": 691,
-          "height": 567
+          "width": 462,
+          "height": 572
         }
       },
       {
@@ -20,13 +20,14 @@
         }
       }
     ],
-    "activeItemId": "psychedelic-wizard",
+    "activeItemId": "holographic-cactus",
     "scroll": {
-      "x": -333.5
+      "x": -192.16666666666663
     }
   },
   "editor": {
-    "openFiles": []
+    "openFiles": [],
+    "preferredViewMode": "content"
   },
   "projectExplorer": {
     "placement": {
@@ -54,5 +55,5 @@
       "height": 360
     }
   },
-  "focusedPanel": "terminal"
+  "focusedPanel": "editor"
 }
